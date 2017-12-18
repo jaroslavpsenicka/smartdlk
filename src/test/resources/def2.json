@@ -1,0 +1,39 @@
+{
+    "name": "GDPR",
+    "label": "Processor pro GDPR DM",
+    "description": "Generuje data pro GDPR reporting.",
+    "discriminator": "'GDPR/'+cidla",
+    "events": [
+        {
+            "name": "gdpr-case-updated",
+            "condition": "caseType == 'GDPR' && type == 'CASE_UPDATED'"
+        },
+        {
+            "name": "gdpr-case-completed",
+            "condition": "caseType == 'GDPR' && type == 'CASE_COMPLETED'",
+            "trigger": true
+        }
+    ],
+    "model": [
+        {
+            "name": "createdAt",
+            "type": "date",
+            "mapping": "createdAt"
+        },
+        {
+            "name": "completedAt",
+            "type": "date",
+            "mapping": "events['gdpr-case-completed'].completedAt"
+        },
+        {
+            "name": "requestType",
+            "type": "string",
+            "mapping": "events['gdpr-case-updated'].jsonData.attributes[?(@.mapping=='REQUEST_TYPE')].value"
+        },
+        {
+            "name": "resolutionType",
+            "type": "string",
+            "mapping": "events['gdpr-case-updated'].jsonData.attributes[?(@.name=='resolutionType')].value"
+        }
+    ]
+}

@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class EventProcessorTest {
+public class EventProcessorMultipleEventsTest {
 
     @Autowired
     private RuleService ruleService;
@@ -54,7 +54,7 @@ public class EventProcessorTest {
 
     @Before
     public void before() throws IOException {
-        Rule rule = readResource("/def1.json");
+        Rule rule = readResource("/def2.json");
         ruleService.deploy(rule);
     }
 
@@ -65,19 +65,27 @@ public class EventProcessorTest {
     }
 
     @Test
-    public void handleEvent() throws IOException {
-        GenericRecord event = new Record(getClass().getResourceAsStream("/schema.avs"));
-        event.put("cidla", "SC001");
-        event.put("createdAt", new Date(0));
-        event.put("completedAt", new Date(1));
-        event.put("caseType", "GDPR");
-        event.put("type", "CASE_COMPLETED");
-        event.put("jsonData", "{\"attributes\":[" +
+    public void multipleEvents() throws IOException {
+        GenericRecord event1 = new Record(getClass().getResourceAsStream("/schema.avs"));
+        event1.put("caseType", "GDPR");
+        event1.put("type", "CASE_UPDATED");
+        event1.put("cidla", "SC001");
+        event1.put("jsonData", "{\"attributes\":[" +
             "{\"name\": \"requestType\", \"value\": \"ABC\", \"mapping\": \"REQUEST_TYPE\"}, " +
             "{\"name\": \"resolutionType\", \"value\":\"DEF\", \"mapping\": null}" +
         "]}");
 
-        eventProcessor.handle(event);
+        eventProcessor.handle(event1);
+
+        GenericRecord event2 = new Record(getClass().getResourceAsStream("/schema.avs"));
+        event2.put("createdAt", new Date(0));
+        event2.put("completedAt", new Date(1));
+        event2.put("caseType", "GDPR");
+        event2.put("type", "CASE_COMPLETED");
+        event2.put("cidla", "SC001");
+        event2.put("jsonData", "{}");
+
+        eventProcessor.handle(event2);
 
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from GDPR");
         assertEquals(1, list.size());
@@ -115,4 +123,5 @@ public class EventProcessorTest {
             values.set(i, o);
         }
     }
+
 }

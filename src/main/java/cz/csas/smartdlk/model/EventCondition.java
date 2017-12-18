@@ -6,5 +6,5 @@ import lombok.Data;
 public class EventCondition extends Named {
 
     private String condition;
-    private Boolean trigger;
+    private boolean trigger;
 }

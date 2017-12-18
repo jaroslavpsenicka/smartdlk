@@ -1,6 +1,5 @@
 package cz.csas.smartdlk.service;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.csas.smartdlk.model.Model;
 import cz.csas.smartdlk.model.ModelType;
@@ -13,9 +12,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +35,7 @@ public class RuleServiceImpl implements RuleService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Transactional(readOnly = true)
     @Cacheable("rules")
     public List<Rule> getRules() {
         return ruleEntityRepository.findAll().stream()
@@ -44,7 +44,8 @@ public class RuleServiceImpl implements RuleService {
     }
 
     @Transactional
-    public void deploy(Rule rule) {
+    @CacheEvict(cacheNames = "rules", allEntries = true)
+    public Rule deploy(Rule rule) {
         Assert.notNull(rule, "no rule given");
         try {
             RuleEntity ruleEntity = ruleEntityRepository.findByName(rule.getName()).orElse(new RuleEntity());
@@ -53,12 +54,14 @@ public class RuleServiceImpl implements RuleService {
             ruleEntity.setActive(false);
             prepareMigration(rule).forEach(sql -> jdbcTemplate.execute(sql));
             ruleEntityRepository.save(ruleEntity);
+            return rule;
         } catch (IOException ex) {
             log.error("Error writing rule {}", rule, ex);
             throw new IllegalStateException("error processing rule " + rule.getName(), ex);
         }
     }
 
+    @Transactional(readOnly = true)
     public List<String> prepareMigration(Rule rule) throws MigrationNotPossibleException {
         if (tableExists(rule.getName())) {
             List<String> migration = new ArrayList<>();
@@ -82,14 +85,16 @@ public class RuleServiceImpl implements RuleService {
         } else return createNewRuleTable(rule);
     }
 
+    @Transactional
     @CacheEvict(cacheNames = "rules", allEntries = true)
-    public void activate(String ruleName) {
-        setActive(ruleName, true);
+    public Rule activate(String ruleName) {
+        return setActive(ruleName, true);
     }
 
+    @Transactional
     @CacheEvict(cacheNames = "rules", allEntries = true)
-     public void deactivate(String ruleName) {
-        setActive(ruleName, false);
+    public Rule deactivate(String ruleName) {
+        return setActive(ruleName, false);
     }
 
     private Rule getRule(RuleEntity e) {
@@ -97,20 +102,18 @@ public class RuleServiceImpl implements RuleService {
             Rule rule = objectMapper.readValue(e.getRule(), Rule.class);
             rule.setActive(e.isActive());
             return rule;
-        } catch (JsonMappingException ex) {
-            log.error("error processing json", ex);
-            throw new IllegalStateException("error processing json", ex);
         } catch (IOException ex) {
             log.error("error reading json", ex);
             throw new IllegalStateException("error reading json", ex);
         }
     }
 
-    private void setActive(String ruleName, boolean activeFlag) {
+    private Rule setActive(String ruleName, boolean activeFlag) {
         RuleEntity ruleEntity = ruleEntityRepository.findByName(ruleName)
             .orElseThrow(() -> new IllegalArgumentException("no such rule: " + ruleName));
         ruleEntity.setActive(activeFlag);
         ruleEntityRepository.save(ruleEntity);
+        return getRule(ruleEntity);
     }
 
     private boolean columnTypeMatches(ModelType type, String existingColumnType) {

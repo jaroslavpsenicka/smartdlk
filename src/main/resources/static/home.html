@@ -1,0 +1,38 @@
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <h3>
+                    <span translate>Rules</span>
+                    <div class="pull-right header-actions">
+                        <input class="form-control filter-field" ng-model="filter" placeholder="type to filter">
+                        <button ngf-select="uploadFile($files, $invalidFiles)" class="btn btn-warning header-button">
+                            <i class="fa fa-plus"></i>&nbsp;
+                            <span translate>Deploy Rule</span>
+                        </button>
+                    </div>
+                </h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-md-12" translate></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="rule in rules | filter: filter | orderBy: 'label'" ng-click="toggle(rule.name)" class="selectable">
+                            <td ng-class="rule.active ? 'rule-active' : 'rule-inactive'">
+                                <div><b>{{rule.label}}</b></div>
+                                <div>{{rule.description}}</div>
+                                <div ng-show="toggled[rule.name]" class="pull-right">
+                                    <button ng-show="!rule.active" ng-click="activate(rule)" class="btn">Activate Rule</button>
+                                    <button ng-show="rule.active" ng-click="deactivate(rule)" class="btn">Deactivate Rule</button>
+                                </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

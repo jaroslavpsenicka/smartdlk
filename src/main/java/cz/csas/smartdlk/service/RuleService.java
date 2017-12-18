@@ -7,9 +7,9 @@ import java.util.List;
 public interface RuleService {
 
     List<Rule> getRules();
-    void activate(String name);
-    void deactivate(String name);
+    Rule deploy(Rule rule);
+    Rule activate(String name);
+    Rule deactivate(String name);
 
     List<String> prepareMigration(Rule rule) throws MigrationNotPossibleException;
-    void deploy(Rule rule);
 }

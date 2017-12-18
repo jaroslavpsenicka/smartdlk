@@ -1,0 +1,34 @@
+{
+    "name": "GDPR",
+    "label": "Processor pro GDPR DM",
+    "description": "Generuje data pro GDPR reporting.",
+    "events": [
+        { 
+            "name": "gdpr-case-completed",
+            "condition": "caseType == 'GDPR' && type == 'CASE_COMPLETED'",
+            "trigger": true
+        }
+    ],
+    "model": [
+        {
+            "name": "createdAt",
+            "type": "date",
+            "mapping": "createdAt"
+        },
+        {
+            "name": "completedAt",
+            "type": "date",
+            "mapping": "completedAt"
+        },
+        {
+            "name": "requestType",
+            "type": "string",
+            "mapping": "jsonData.attributes[?(@.mapping=='REQUEST_TYPE')].value"
+        },
+        {
+            "name": "resolutionType",
+            "type": "string",
+            "mapping": "jsonData.attributes[?(@.name=='resolutionType')].value"
+        }
+    ]
+}

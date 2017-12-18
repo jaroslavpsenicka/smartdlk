@@ -61,12 +61,17 @@ body {
 }
 
 .rule-active {
+    color: black;
 }
 
 .rule-inactive {
     color: darkgray;
 }
 
+.chart {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
 
 

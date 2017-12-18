@@ -5,7 +5,7 @@
                 <h3>
                     <span translate>Rules</span>
                     <div class="pull-right header-actions">
-                        <input class="form-control filter-field" ng-model="filter" placeholder="type to filter">
+                        <input class="form-control filter-field" ng-model="filter" autofocus placeholder="type to filter">
                         <button ngf-select="uploadFile($files, $invalidFiles)" class="btn btn-warning header-button">
                             <i class="fa fa-plus"></i>&nbsp;
                             <span translate>Deploy Rule</span>
@@ -19,14 +19,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="rule in rules | filter: filter | orderBy: 'label'" ng-click="toggle(rule.name)" class="selectable">
+                        <tr ng-repeat="rule in rules | filter: filter | orderBy: 'label'" class="selectable">
                             <td ng-class="rule.active ? 'rule-active' : 'rule-inactive'">
-                                <div><b>{{rule.label}}</b></div>
-                                <div>{{rule.description}}</div>
-                                <div ng-show="toggled[rule.name]" class="pull-right">
-                                    <button ng-show="!rule.active" ng-click="activate(rule)" class="btn">Activate Rule</button>
-                                    <button ng-show="rule.active" ng-click="deactivate(rule)" class="btn">Deactivate Rule</button>
-                                </button>
+                                <div ng-click="toggle(rule.name)">
+                                    <div ><b>{{rule.label}}</b></div>
+                                    <div>{{rule.description}}</div>
+                                </div>
+                                <div ng-show="toggled[rule.name]" class="rule-active">
+                                    <div class="hc-pie chart" items="limitedIdeas" active="rule.active"></div>
+                                    <div>
+                                        <button ng-show="!rule.active" ng-click="activate(rule)" class="btn pull-right">Activate Rule</button>
+                                        <button ng-show="rule.active" ng-click="deactivate(rule)" class="btn pull-right">Deactivate Rule</button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

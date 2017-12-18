@@ -54,14 +54,14 @@ public class EventProcessorMultipleEventsTest {
 
     @Before
     public void before() throws IOException {
+        ruleEntityRepository.deleteAll();
+        cacheManager.getCache("rules").clear();
         Rule rule = readResource("/def2.json");
         ruleService.deploy(rule);
     }
 
     @After
     public void after() {
-        ruleEntityRepository.deleteAll();
-        cacheManager.getCache("rules").clear();
     }
 
     @Test

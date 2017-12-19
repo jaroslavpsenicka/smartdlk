@@ -22,7 +22,7 @@
                         <tr ng-repeat="rule in rules | filter: filter | orderBy: 'label'" class="selectable">
                             <td ng-class="rule.active ? 'rule-active' : 'rule-inactive'">
                                 <div ng-click="toggle(rule.name)">
-                                    <div ><b>{{rule.label}}</b></div>
+                                    <div><b><a href="/#/rule/{{rule.name}}">{{rule.label}}</a></b></div>
                                     <div>{{rule.description}}</div>
                                 </div>
                                 <div ng-show="toggled[rule.name]" class="rule-active">

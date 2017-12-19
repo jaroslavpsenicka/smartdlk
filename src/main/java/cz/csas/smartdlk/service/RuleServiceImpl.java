@@ -43,6 +43,12 @@ public class RuleServiceImpl implements RuleService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public Rule getRule(String ruleName) {
+        return getRule(ruleEntityRepository.findByName(ruleName)
+            .orElseThrow(() -> new IllegalArgumentException("not a rule: " + ruleName)));
+    }
+
     @Transactional
     @CacheEvict(cacheNames = "rules", allEntries = true)
     public Rule deploy(Rule rule) {

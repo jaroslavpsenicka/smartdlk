@@ -1,5 +1,6 @@
 package cz.csas.smartdlk.model;
 
+import cz.csas.smartdlk.annotation.AtLeastOneTrigger;
 import cz.csas.smartdlk.annotation.DiscriminatorValid;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -19,6 +20,7 @@ public class Rule extends Named {
     private String discriminator;
 
     @Valid
+    @AtLeastOneTrigger
     private List<EventCondition> events;
 
     @Valid

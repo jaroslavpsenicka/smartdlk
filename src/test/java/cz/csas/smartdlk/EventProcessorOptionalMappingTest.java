@@ -28,11 +28,12 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @Transactional
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class EventProcessorMultipleEventsTest {
+public class EventProcessorOptionalMappingTest {
 
     @Autowired
     private RuleService ruleService;
@@ -56,7 +57,7 @@ public class EventProcessorMultipleEventsTest {
     public void before() throws IOException {
         ruleEntityRepository.deleteAll();
         cacheManager.getCache("rules").clear();
-        Rule rule = readResource("/def2.json");
+        Rule rule = readResource("/def3.json");
         ruleService.deploy(rule);
     }
 
@@ -65,34 +66,24 @@ public class EventProcessorMultipleEventsTest {
     }
 
     @Test
-    public void multipleEvents() throws IOException {
+    public void optionalMapping() throws IOException {
         GenericRecord event1 = new Record(getClass().getResourceAsStream("/schema.avs"));
-        event1.put("caseType", "GDPR");
+        event1.put("caseType", "MOB");
         event1.put("type", "CASE_UPDATED");
         event1.put("cidla", "SC001");
+        event1.put("createdAt", new Date(0));
+        event1.put("completedAt", new Date(1));
         event1.put("jsonData", "{\"attributes\":[" +
-            "{\"name\": \"requestType\", \"value\": \"ABC\", \"mapping\": \"REQUEST_TYPE\"}, " +
-            "{\"name\": \"resolutionType\", \"value\":\"DEF\", \"mapping\": null}" +
+            "{\"name\": \"cluid\", \"value\": \"ABC\", \"mapping\": \"CLUID\"}" +
         "]}");
 
         eventProcessor.handle(event1);
 
-        GenericRecord event2 = new Record(getClass().getResourceAsStream("/schema.avs"));
-        event2.put("createdAt", new Date(0));
-        event2.put("completedAt", new Date(1));
-        event2.put("caseType", "GDPR");
-        event2.put("type", "CASE_COMPLETED");
-        event2.put("cidla", "SC001");
-        event2.put("jsonData", "{}");
-
-        eventProcessor.handle(event2);
-
-        List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from GDPR2");
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from MOB");
         assertEquals(1, list.size());
         assertNotNull(list.get(0).get("CREATEDAT"));
-        assertNotNull(list.get(0).get("COMPLETEDAT"));
-        assertEquals("ABC", list.get(0).get("REQUESTTYPE"));
-        assertEquals("DEF", list.get(0).get("RESOLUTIONTYPE"));
+        assertEquals("ABC", list.get(0).get("CLUID"));
+        assertNull(list.get(0).get("TARGETBANK"));
     }
 
     private Rule readResource(String resource) throws IOException {

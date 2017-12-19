@@ -1,0 +1,31 @@
+{
+    "name": "MOB",
+    "label": "Processor pro mobilitu",
+    "description": "Generuje data pro mobilitu.",
+    "discriminator": "'MOB/'+cidla",
+    "events": [
+        {
+            "name": "mob-case-updated",
+            "condition": "caseType == 'MOB' && type == 'CASE_UPDATED'",
+            "trigger": true
+        }
+    ],
+    "model": [
+        {
+            "name": "cluid",
+            "type": "string",
+            "mapping": "jsonData.attributes[?(@.mapping=='CLUID')].value"
+        },
+        {
+            "name": "createdAt",
+            "type": "date",
+            "mapping": "createdAt"
+        },
+        {
+            "name": "targetBank",
+            "type": "string",
+            "mapping": "jsonData.attributes[?(@.name=='targetBank')].value",
+            "optional": true
+        }
+    ]
+}

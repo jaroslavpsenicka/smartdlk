@@ -113,17 +113,18 @@ public class EventProcessor {
     }
 
     private Object readValue(String node, Model m) {
-        Object value = JsonPath.read(node, m.getMapping());
+        Object result = JsonPath.read(node, m.getMapping());
+        if (result instanceof JSONArray) {
+            JSONArray array = (JSONArray) result;
+            if (array.size() == 0 && !m.isOptional()) throw new IllegalStateException("no value " + m);
+            result = array.size() > 0 ? array.get(0) : null;
+        }
+
         if (m.getType() == ModelType.date) {
-            return new Date(value instanceof Integer ? (Integer) value : (Long) value);
+            return new Date(result instanceof Integer ? (Integer) result : (Long) result);
         }
 
-        if (value instanceof JSONArray) {
-            JSONArray array = (JSONArray) value;
-            return array.size() == 1 ? array.get(0) : array;
-        }
-
-        return value;
+        return result;
     }
 
     private ObjectNode createJson(GenericRecord record) throws JsonProcessingException {

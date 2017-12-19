@@ -6,6 +6,10 @@ angular.module('smartdlk.services', ['ngResource'])
             url: 'api/rules',
             isArray: true
         },
+        get: {
+            url: 'api/rules/:rule',
+            params: { rule: '@rule' }
+        },
         activate: {
             url: 'api/rules/:rule/activate',
             method: 'POST',

@@ -26,6 +26,11 @@ public class RuleServiceController {
         return ruleService.getRules();
     }
 
+    @RequestMapping(value = "/api/rules/{ruleName}", method = RequestMethod.GET)
+    public Rule rule(@PathVariable String ruleName) {
+        return ruleService.getRule(ruleName);
+    }
+
     @RequestMapping(value = "/api/rules", method = RequestMethod.POST)
     public Rule upload(@RequestParam("file") MultipartFile file) throws IOException {
         return ruleService.deploy(objectMapper.readValue(file.getInputStream(), Rule.class));

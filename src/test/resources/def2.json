@@ -1,6 +1,6 @@
 {
-    "name": "GDPR",
-    "label": "Processor pro GDPR DM",
+    "name": "GDPR2",
+    "label": "Processor pro GDPR DM, verze s 2ma eventy",
     "description": "Generuje data pro GDPR reporting.",
     "discriminator": "'GDPR/'+cidla",
     "events": [

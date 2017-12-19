@@ -9,7 +9,10 @@ angular.module('smartdlk', [
 	$routeProvider.when("/", {
 		templateUrl: "home.html",
 		controller: "HomeCtrl"
-	}).otherwise("/404", {
+	}).when("/rule/:ruleName", {
+        templateUrl: "rule.html",
+        controller: "RuleCtrl"
+    }).otherwise("/404", {
 		templateUrl: "404.html",
 		controller: "PageCtrl"
 	});
@@ -149,5 +152,12 @@ angular.module('smartdlk', [
     $scope.loadRules();
 })
 
+.controller('RuleCtrl', function ($scope, $routeParams, rulesService) {
+
+    rulesService.get({rule: $routeParams.ruleName}, function(result) {
+        $scope.rule = result;
+    });
+
+})
 
 
